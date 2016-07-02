@@ -18,6 +18,7 @@
 #     DOI=http://dx.doi.org/10.1145/2827872
 
 library(shiny)
+library(markdown)
 
 # selection of professions, from the Movielens project data
 occupations <- c("administrator",

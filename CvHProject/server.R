@@ -18,6 +18,7 @@
 #     DOI=http://dx.doi.org/10.1145/2827872
 
 library(shiny)
+library(markdown)
 
 # load organized data; this data is not the original data from group lens
 # A separate R script, dataTidying.R, is used to prepare these .rda files.
@@ -87,7 +88,7 @@ shinyServer(function(input, output) {
         tags$div(
           h4("Ten Top Rated Movies"),
           tags$div(
-            h5(paste(nrow(myCohort), " raters meeting criteria at left rated ",
+            h5(paste("Ranking based on ratings of ",
                      nrow(myCohortRatings), " movies.")),
             h5("These are the top ten choices.")
           ),
