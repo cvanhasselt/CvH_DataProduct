@@ -1,28 +1,38 @@
 #
-# This is the server logic of a Shiny web application. You can run the
-# application by clicking 'Run App' above.
+# "My Kind of Movies!" Shiny Web app - Server
+#  By Chris van Hasselt
+#  07/03/2016
+#  Built for the Coursera Data Products Course
 #
-# Find out more about building applications with Shiny here:
+#  The "My Kind of Movies!" app is based on data found through the
+#  Grouplens Project, (http://grouplens.org/datasets/movielens/)
+#  and usese data from their benchmark dataset(http://grouplens.org/datasets/movielens/100k/)
+#  of 100,000 movie ratings of 1,700 different movies from one-thousand survey respondents.
 #
-#    http://shiny.rstudio.com/
+#  More info about this project can be found at the above hyperlinks, and you
+#  can read about it in this article:
 #
+#     F. Maxwell Harper and Joseph A. Konstan. 2015. The MovieLens Datasets:
+#     History and Context. ACM Transactions on Interactive Intelligent
+#     Systems (TiiS) 5, 4, Article 19 (December 2015), 19 pages.
+#     DOI=http://dx.doi.org/10.1145/2827872
 
 library(shiny)
 
-movies <- readRDS("movies.rda")
-users <- readRDS("users.rda")
-ratings <- readRDS("ratings.rda")
-
-
+# load organized data; this data is not the original data from group lens
+# A separate R script, dataTidying.R, is used to prepare these .rda files.
+# This script is available at the GitHub repository for this project.
+movies <- readRDS("data/movies.rda")
+users <- readRDS("data/users.rda")
+ratings <- readRDS("data/ratings.rda")
 
 # Define server logic required to draw a histogram
 shinyServer(function(input, output) {
 
+    # prepare output data, to be rendered as HTML
     output$appData <- renderUI({
-      # determine broad job category
-      # myJobCat <- users[users$occupation == input$occupation,]$jobCategory[1]
-      # myJobCat <- users[users$occupation == input$occupation,]
-      # determine full cohort
+
+      # determine full cohort, based on user input of age, gender, occupation
       myCohort <- users[users$ageGroup == input$age &
                         users$gender == input$gender &
                         users$occupation == input$occupation, ]
@@ -48,21 +58,21 @@ shinyServer(function(input, output) {
           nrow(myCohortRatings[myCohortRatings$item.id == x, ])
         })
 
-      # here I calculate a weighted score for all items in cohort
-      # first with some preliminary items totals, then calculating for each item.
-      totalNumRatings <- nrow(myCohortRatings)
-        #sum(as.numeric(myCohortFavorites$numRaters))
-      meanCohortRating <- mean(as.numeric(myCohortFavorites$avgCohortRating))
-      meanNumRaters <- mean(as.numeric(myCohortFavorites$numRaters))
+      # here I calculate the mean cohort rating, for use in producing weighted scores.
+      C <- mean(as.numeric(myCohortFavorites$avgCohortRating))
 
       # calculating each adjusted rating; 5 is the highest score possible.
+      # This follows the formula explained at this URL:
+      # http://stackoverflow.com/a/1411268/941255
+      #
+      # This is a Bayesian weighted mean - if I understand it correctly.
+      #
       myCohortFavorites$adjustedRating <-
         sapply(myCohortFavorites$movie.id , function (x) {
-          #(
-            (( meanCohortRating * meanNumRaters ) +
-           ( myCohortFavorites[myCohortFavorites$movie.id == x, ]$numRaters *
-             myCohortFavorites[myCohortFavorites$movie.id == x, ]$avgCohortRating)) *  5 )
-        #totalNumRatings
+          v <- myCohortFavorites[myCohortFavorites$movie.id == x,]$numRaters
+          m <- 3 # arbitrarily chosen; must have at least 3 ratings
+          R <- myCohortFavorites[myCohortFavorites$movie.id == x,]$avgCohortRating
+          round(((v / (v + m) * R) + (m/(v+m))* C), digits=2)
         })
 
 
@@ -88,6 +98,13 @@ shinyServer(function(input, output) {
                                 x['adjustedRating']))
                })
             )
+          ),
+          hr(),
+          tags$div(
+            p("Ratings are based on both the number of ratings and the mean rating
+               for a particular movie within the group of users matching specified demographic
+               criteria. Movies must have at least 3 ratings to show up in the list.
+               Some combinantions of demographic criteria may have no results.")
           )
         )
       } else {
