@@ -19,4 +19,4 @@ can read about it in this article:
      
 The URL for the final app is hosted at ShinyApps.io, at the following URL:
 
-https://cvanhasselt.shinyapps.io/My\_Kind\_of\_Movies/
+https://cvanhasselt.shinyapps.io/My_Kind_of_Movies/
