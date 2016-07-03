@@ -30,7 +30,7 @@ Preparing the data from Grouplens for use in the app involved a number of steps:
 - Saving the modified data files
 
 The logical columns, for movie genre, were  ultimately not used.
-The file _dataTidying.R_, found on the GitHub repository, includes code
+The file _dataTidying.R_, found on the [GitHub repository](https://github.com/cvanhasselt/CvH_DataProduct.git), includes code
 used to prepare data for the app.
 
 - The data includes information on movies, user demographics, and movie ratings.  
