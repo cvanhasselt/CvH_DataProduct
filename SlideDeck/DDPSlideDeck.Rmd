@@ -1,0 +1,90 @@
+---
+title: "My Kind of Movies App"
+author: "Chris van Hasselt"
+date: "July 2, 2016"
+output: 
+  ioslides_presentation:
+    smaller: true
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = FALSE)
+```
+
+## My Kind of Movies App
+The "My Kind of Movies!" app is a simple Shiny app based on data found through the
+[Grouplens Project](http://grouplens.org/datasets/movielens/)
+and usese data from their [benchmark dataset](http://grouplens.org/datasets/movielens/100k/)
+of 100,000 movie ratings of 1,700 different movies from one-thousand survey respondents.
+
+The app effectively demonstrates some of the things that Shiny can do.  While
+barely touching on Shiny's full capabilities, the app shows how a complicated 
+set of data can be quickly "crunched" to provide value from data.
+
+## Approach to Data
+Preparing the data from Grouplens for use in the app involved a number of steps: 
+
+- Renaming column variables for convenience
+- Changing the data types on some columns, particularly date and logical columns
+- Defining an age group column, rather than just using user age
+- Saving the modified data files
+
+The logical columns, for movie genre, were  ultimately not used.
+The file _dataTidying.R_, found on the GitHub repository, includes code
+used to prepare data for the app.
+
+- The data includes information on movies, user demographics, and movie ratings.  
+- All three of these data sets were combined;
+- The user filters the data by age group, gender and occupation.
+- The most difficult task was determining an effective way to rank the movies by rating, given
+that not all movies had the same number people rating them
+--A movie with 19 users giving the movie a 5, and one user giving it a 4 would have 
+a lower rank than a movie with one user rating of 5.
+
+
+## Ranking Algorithm - Part 1
+The ranking algorithm used follows the formula
+found [here on Stack Overflow](http://stackoverflow.com/a/1411268/941255).  
+
+An example of this ranking approach is demonstrated below.  The data frame does not correspond
+to the data frame format used in the application. 
+```{r rankdemo, include=FALSE}
+
+StarWars <- c(movie.id=50,title="Star Wars (1977)", avgRating=4.533333333,numRatings=15.0)
+
+RagingBull <-c(movie.id=192,title="Raging Bull (1980)", avgRating=4.75,numRatings=4)
+movieDF <- data.frame(rbind(StarWars,RagingBull))
+```
+```{r demoparta, echo=FALSE}
+
+knitr::kable(movieDF)
+
+```
+
+## Ranking Algorithm - Part 2
+```{r demopartb, echo=TRUE}
+v1 <- as.numeric(as.character(movieDF["StarWars",]$numRatings))
+R1 <- as.numeric(as.character(movieDF["StarWars",]$avgRating))
+v2 <- as.numeric(as.character(movieDF["RagingBull",]$numRatings))
+R2 <- as.numeric(as.character(movieDF["RagingBull",]$avgRating))
+m <- 3 # arbitrary choice of a minimum number of items
+# I've hardcoded this, but in practice it is calculated across a large set of movie ratings
+C = 3.245463925 
+
+ScoreStarWars <- (v1 /(v1 + m)) * R1 + (m/(v1 + m)) * C
+ScoreRagingBull <- (v2 /(v2 + m)) * R2 + (m/(v2 + m)) * C
+# Star Wars Score
+ScoreStarWars
+# Raging Bull Score
+ScoreRagingBull
+```
+As can be seen, final score is better for _Star Wars_, even though _Raging Bull_ 
+had a higher raw score.
+
+## Conclusion
+
+The _My Kind of Movies_ app demonstrates the power of Shiny.  
+
+There is a lot of room for improvement, but the app demonstrates the power of bringing
+data to life through an effective, interactive presentation.
+

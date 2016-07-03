@@ -70,24 +70,9 @@ usersCols <- c("user.id","age","gender","occupation","zip.code")
 
 # read in users file
 users <- read.delim("u.user",sep='|',header=FALSE, col.names = usersCols)
-# users$ageGroup <- cut(users$age,c(0,20,30,40,50,100),labels=c("1","2","3","4","5"))
 users$ageGroup <- cut(users$age,c(0,25,35,50,100),labels=c("1","2","3","4"))
 
-
-# For many occupations,the number of users reporting that occupation was very small.
-# To enlarge the pool of users based on occupation, I created an occupational category
-# field and mapped occupations based on those catetories.
-
-users$jobCategory <- "x"
-users[users$occupation %in% c("doctor","healthcare"),]$jobCategory <- "health"
-users[users$occupation %in% c("entertainment","writer","artist"),]$jobCategory <- "creative"
-users[users$occupation %in% c("technician","programmer","engineer","scientist"),]$jobCategory <- "technical"
-users[users$occupation %in% c("other","retired","none","homemaker","student"),]$jobCategory <- "other"
-users[users$occupation %in% c("lawyer","educator","librarian","administrator"),]$jobCategory <- "professional"
-users[users$occupation %in% c("salesman","executive","marketing"),]$jobCategory <- "business"
-
-
-users$jobCategory <- as.factor(users$jobCategory)
+# save data for users
 saveRDS(users, file = "CVHProject/users.rda")
 
 # setup ratings column names
